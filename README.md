@@ -175,6 +175,64 @@ Then open **http://localhost:8000** in your browser.
 CLI, from `localhost`, or when `RELAY_ALLOW_SETUP=1` is set. For extra
 safety on a public server, delete it entirely.
 
+## 🚀 Deploying to alwaysdata (free)
+
+This is a PHP + MySQL app, so it needs a host that provides **both**. The
+[alwaysdata free plan](https://www.alwaysdata.com) includes PHP 8.x, a
+MySQL/MariaDB database, SSH, a subdomain (`you.alwaysdata.net`) — no ads,
+no credit card, no spin-down.
+
+### 1. Sign up & create the site
+
+1. Create a free account at https://www.alwaysdata.com
+2. **Web → Sites → Add a site**: type `PHP`, pick the latest **PHP 8.x**
+   runtime, keep the default root directory (`www/`).
+3. **Databases → MySQL → Add a database** — note the values you get:
+   database name, user, password, and the **MySQL host** (e.g.
+   `mysql-xxx.alwaysdata.net`). Names include your account id
+   (e.g. `u123456_dbname`).
+
+### 2. Upload the code
+
+Either clone over SSH (free plan has it — see **Account → Remote access**)
+or upload with any SFTP client into `www/`:
+
+```bash
+cd www
+git clone https://github.com/Thecodercomau/relay-music-player.git .
+```
+
+### 3. Configure the database
+
+1. Copy the template: `cp php/config.example.php php/config.php`
+2. Edit `php/config.php` with your alwaysdata values:
+
+```php
+define('DB_HOST', 'mysql-xxx.alwaysdata.net');   // NOT localhost
+#define('DB_USER', 'u123456_dbname');
+#define('DB_PASS', 'your-db-password');
+#define('DB_NAME', 'u123456_dbname');
+#define('JAMENDO_CLIENT_ID', 'your-jamendo-client-id');
+```
+
+3. Create the tables. Your alwaysdata account may not have `CREATE
+   DATABASE` rights, so use **phpMyAdmin**
+   (https://phpmyadmin.alwaysdata.com) to import `database.sql`, or from
+   SSH run:
+
+```bash
+mysql -h mysql-xxx.alwaysdata.net -u u123456_dbname -p u123456_dbname < database.sql
+```
+
+### 4. Finish
+
+- Open `https://you.alwaysdata.net` — you should see the landing page.
+- Sign up — the **first account is auto-promoted to admin**.
+- `uploads/` is tracked (`.gitkeep`) and writable by your account, so the
+  Admin tab works out of the box.
+- 🛡️ After setup, delete `php/setup.php` (or leave it — it returns 403
+  for remote visitors).
+
 ## 🔌 The music database
 
 The app already queries your MySQL `songs` table (created by `php/setup.php`)
