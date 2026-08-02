@@ -26,7 +26,9 @@ export function json(body: unknown, status = 200): Response {
 /** Handle a CORS preflight request. Returns a Response, or null to continue. */
 export function handleOptions(req: Request): Response | null {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 204, headers: corsHeaders });
+    // 204 must not carry a body (the Fetch spec makes `new Response(body,
+    // { status: 204 })` throw a TypeError, which surfaces as a 500).
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
   return null;
 }
