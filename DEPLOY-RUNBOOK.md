@@ -31,7 +31,7 @@ Dashboard → **Project Settings → API**:
 | Value | Where |
 |---|---|
 | **Project URL** | top of the page — `https://<project-ref>.supabase.co` |
-| **anon public** key | `Project API keys` section |
+| **anon public** key | `Project API keys` section — on newer projects this is called **publishable** and starts with `sb_publishable_…` |
 | **service_role** key | `Project API keys` section (⚠️ secret — never ship it) |
 
 ## Step 4 — Set the function secrets

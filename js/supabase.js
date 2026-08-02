@@ -9,8 +9,8 @@
  * deployment — it is checked in with empty placeholders.
  */
 const RELAY_SUPABASE = {
-  url: "", // e.g. "https://abcdefghijklm.supabase.co"
-  anonKey: "", // e.g. "eyJhbGciOi..."
+  url: "https://vtgtwqlkymmslyteqlmc.supabase.co",
+  anonKey: "sb_publishable_lJmTtMV16ALJjETzL5HC2w_Cxnv0LrF",
 };
 
 /** True once the config above has been filled in. */
