@@ -1,0 +1,26 @@
+# ---- macOS ----
+.DS_Store
+
+# ---- Secrets: never commit real credentials ----
+# `php/config.php` holds your MySQL password + Jamendo client_id.
+# Commit the template (php/config.example.php) instead.
+php/config.php
+
+# ---- User-uploaded audio (could contain copyrighted files) ----
+uploads/*
+!uploads/.gitkeep
+
+# ---- Local dev-server config (contains personal absolute paths) ----
+com.relay.music.server.plist
+
+# ---- Logs & temp files ----
+*.log
+*.err
+*.out
+*.pid
+
+# ---- Editors / OS ----
+.vscode/
+.idea/
+*.swp
+Thumbs.db

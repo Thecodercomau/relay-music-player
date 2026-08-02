@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Player — Relay</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎧</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/auth.css" />
+  <link rel="stylesheet" href="../css/player.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<body class="player-body">
+  <nav class="navbar">
+    <a href="../index.html" class="navbar__brand">
+      <span class="navbar__logo">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </span>
+      Relay
+    </a>
+    <ul class="navbar__links">
+      <li><a href="../index.html" class="nav-link">Home</a></li>
+      <li><a href="player.html" class="nav-link nav-link--active">Player</a></li>
+    </ul>
+    <div class="navbar__auth" id="navbarAuth"></div>
+  </nav>
+
+  <main class="player-main">
+    <!-- Tab bar -->
+    <div class="player-tabs" id="playerTabs" role="tablist">
+      <button class="player-tab player-tab--active" data-tab="home" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        Home
+      </button>
+      <button class="player-tab" data-tab="search" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Search
+      </button>
+      <button class="player-tab" data-tab="playlists" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/><path d="M3 9h18"/><path d="M16 19l-2-2 2-2"/><path d="M14 17h7"/></svg>
+        Playlists
+      </button>
+      <button class="player-tab" data-tab="admin" role="tab" aria-selected="false" id="adminTab" hidden>
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Admin
+      </button>
+    </div>
+
+    <!-- ============ HOME view: suggested songs ============ -->
+    <section class="player-view" id="view-home" role="tabpanel">
+      <div class="track-section">
+        <div class="track-section__head">
+          <h2 id="homeTitle">✨ Suggested for you</h2>
+          <span class="track-count" id="homeCount"></span>
+        </div>
+        <div class="track-list" id="homeList"></div>
+        <div class="empty-state" id="homeEmpty" hidden>
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <h3>Couldn't load suggestions</h3>
+          <p>Check your internet connection and try again.</p>
+        </div>
+        <div class="loading-skeleton" id="homeSkeleton" hidden>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SEARCH view ============ -->
+    <section class="player-view" id="view-search" role="tabpanel" hidden>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="searchInput" placeholder="Search songs, artists, albums…" autocomplete="off" />
+        <button class="btn btn--primary btn--sm" id="searchBtn">Search</button>
+      </div>
+      <p class="search-hint" id="searchHint">Search the catalog and add anything you love to a playlist.</p>
+
+      <div class="track-section">
+        <div class="track-section__head">
+          <h2 id="searchTitle">Results</h2>
+          <span class="track-count" id="searchCount"></span>
+        </div>
+        <div class="track-list" id="searchList"></div>
+        <div class="empty-state" id="searchEmpty" hidden>
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <h3>No tracks found</h3>
+          <p>Try a different search — e.g. “Daft Punk”, “Lo-fi”, or “Rock”.</p>
+        </div>
+        <div class="loading-skeleton" id="searchSkeleton" hidden>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ADMIN view: manage your songs library ============ -->
+    <section class="player-view" id="view-admin" role="tabpanel" hidden>
+      <div class="track-section">
+        <div class="track-section__head">
+          <h2>🎛️ Music library</h2>
+        </div>
+
+        <!-- Upload form -->
+        <form class="admin-form" id="adminForm" novalidate>
+          <div class="admin-form__grid">
+            <div class="field">
+              <label for="admTitle">Title *</label>
+              <input type="text" id="admTitle" name="title" placeholder="Song title" required />
+            </div>
+            <div class="field">
+              <label for="admArtist">Artist *</label>
+              <input type="text" id="admArtist" name="artist" placeholder="Artist name" required />
+            </div>
+            <div class="field">
+              <label for="admAlbum">Album *</label>
+              <input type="text" id="admAlbum" name="album" placeholder="Album name" required />
+            </div>
+            <div class="field">
+              <label for="admCover">Cover URL <small>(optional)</small></label>
+              <input type="url" id="admCover" name="cover" placeholder="https://…/cover.jpg" />
+            </div>
+          </div>
+
+          <div class="admin-form__audio">
+            <div class="admin-form__pick">
+              <div class="field">
+                <label for="admFile">Upload audio file</label>
+                <input type="file" id="admFile" name="audio" accept=".mp3,.m4a,.ogg,.oga,.wav,.flac,.aac,.opus,audio/*" />
+              </div>
+              <span class="admin-form__or">or</span>
+              <div class="field">
+                <label for="admUrl">Paste an audio URL</label>
+                <input type="url" id="admUrl" name="audio_url" placeholder="https://…/song.mp3" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn--primary btn--block btn--lg" id="admSubmit">
+              <span class="btn__label">Add song to library</span>
+              <span class="btn__spinner" hidden></span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Existing songs -->
+        <div class="track-section__head admin-songs-head">
+          <h2>In your library</h2>
+          <span class="track-count" id="adminSongCount"></span>
+        </div>
+        <div class="track-list" id="adminList"></div>
+        <div class="empty-state" id="adminEmpty" hidden>
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5 5 5-5"/><path d="M5 21h14"/></svg>
+          <h3>Your library is empty</h3>
+          <p>Add your first song above — upload a file or paste an audio URL.</p>
+        </div>
+        <div class="loading-skeleton" id="adminSkeleton" hidden>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+
+        <!-- Manage users -->
+        <div class="track-section__head admin-songs-head">
+          <h2>👥 Manage users</h2>
+          <span class="track-count" id="adminUserCount"></span>
+        </div>
+        <p class="search-hint">Turn the admin toggle on to give someone access to this panel. You can't remove your own admin access.</p>
+        <div class="user-list" id="adminUserList"></div>
+        <div class="empty-state" id="adminUsersEmpty" hidden>
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <h3>No users found</h3>
+          <p>There are no accounts yet.</p>
+        </div>
+        <div class="loading-skeleton" id="adminUsersSkeleton" hidden>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PLAYLISTS view ============ -->
+    <section class="player-view" id="view-playlists" role="tabpanel" hidden>
+      <!-- Playlist list -->
+      <div id="playlistListWrap">
+        <div class="playlists-head">
+          <h2>Your playlists</h2>
+          <button class="btn btn--primary btn--sm" id="newPlaylistBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New playlist
+          </button>
+        </div>
+        <div class="playlist-grid" id="playlistGrid"></div>
+        <div class="empty-state" id="playlistEmpty" hidden>
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/><path d="M3 9h18"/><path d="M16 19l-2-2 2-2"/><path d="M14 17h7"/></svg>
+          <h3>No playlists yet</h3>
+          <p>Create your first playlist and start collecting tracks.</p>
+          <button class="btn btn--primary btn--sm" id="emptyCreateBtn">Create playlist</button>
+        </div>
+        <div class="loading-skeleton" id="playlistSkeleton" hidden>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+      </div>
+
+      <!-- Playlist detail -->
+      <div id="playlistDetail" hidden>
+        <button class="back-btn" id="backBtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          All playlists
+        </button>
+        <div class="track-section">
+          <div class="track-section__head">
+            <h2 id="detailTitle">Playlist</h2>
+            <span class="track-count" id="detailCount"></span>
+          </div>
+          <div class="track-list" id="detailList"></div>
+          <div class="empty-state" id="detailEmpty" hidden>
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <h3>This playlist is empty</h3>
+            <p>Use the + button on any track to add it here.</p>
+          </div>
+          <div class="loading-skeleton" id="detailSkeleton" hidden>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom player bar -->
+  <div class="player-bar" id="playerBar">
+    <div class="player-bar__now">
+      <div class="player-bar__art" id="npArt">
+        <span class="player-bar__eq" id="npEq" hidden>
+          <i></i><i></i><i></i>
+        </span>
+      </div>
+      <div class="player-bar__meta">
+        <strong id="npTitle">Nothing playing</strong>
+        <span id="npArtist">Pick a track to start</span>
+      </div>
+      <button class="icon-btn" id="downloadBtn" title="Download track" aria-label="Download track">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+      </button>
+      <button class="icon-btn" id="infoBtn" title="Track details" aria-label="Track details">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M12 11v5"/></svg>
+      </button>
+    </div>
+
+    <div class="player-bar__controls">
+      <div class="controls-row">
+        <button class="icon-btn" id="shuffleBtn" title="Shuffle" aria-label="Shuffle">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+        </button>
+        <button class="icon-btn" id="prevBtn" title="Previous" aria-label="Previous track">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20L9 12l10-8v16z"/><path d="M5 19V5"/></svg>
+        </button>
+        <button class="icon-btn play-btn" id="playBtn" title="Play / Pause" aria-label="Play or pause">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" stroke="none" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="icon-btn" id="nextBtn" title="Next" aria-label="Next track">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l10 8-10 8V4z"/><path d="M19 5v14"/></svg>
+        </button>
+        <button class="icon-btn" id="repeatBtn" title="Repeat" aria-label="Repeat">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </button>
+        <button class="icon-btn" id="fullscreenBtn" title="Fullscreen Now Playing" aria-label="Fullscreen Now Playing">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        </button>
+      </div>
+      <div class="progress-row">
+        <span class="time" id="currentTime">0:00</span>
+        <input type="range" class="progress" id="progressBar" min="0" max="100" value="0" step="0.1" aria-label="Seek" />
+        <span class="time" id="totalTime">0:00</span>
+      </div>
+    </div>
+
+    <div class="player-bar__volume">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      <input type="range" id="volumeBar" min="0" max="100" value="70" aria-label="Volume" />
+    </div>
+  </div>
+
+  <!-- Fullscreen Now Playing -->
+  <div class="np-fullscreen" id="npFullscreen" hidden>
+    <button class="icon-btn np-fullscreen__close" id="npFullClose" title="Close" aria-label="Close fullscreen">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <button class="icon-btn np-fullscreen__min" id="npFullMin" title="Minimize" aria-label="Minimize fullscreen">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
+    </button>
+
+    <div class="np-fullscreen__art" id="npFullArt">
+      <span class="np-fullscreen__eq" id="npFullEq" hidden><i></i><i></i><i></i></span>
+    </div>
+
+    <div class="np-fullscreen__meta">
+      <strong id="npFullTitle">Nothing playing</strong>
+      <span id="npFullArtist">Pick a track to start</span>
+    </div>
+
+    <div class="np-fullscreen__lyrics" id="npFullLyricsPanel" hidden>
+      <div class="np-fullscreen__lyrics-scroll" id="npFullLyricsText"></div>
+    </div>
+
+    <div class="np-fullscreen__progress">
+      <span class="time" id="npFullCurrent">0:00</span>
+      <input type="range" class="progress" id="npFullProgress" min="0" max="100" value="0" step="0.1" aria-label="Seek" />
+      <span class="time" id="npFullTotal">0:00</span>
+    </div>
+
+    <div class="np-fullscreen__controls">
+      <button class="icon-btn" id="npFullShuffle" title="Shuffle" aria-label="Shuffle">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+      </button>
+      <button class="icon-btn" id="npFullPrev" title="Previous" aria-label="Previous track">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20L9 12l10-8v16z"/><path d="M5 19V5"/></svg>
+      </button>
+      <button class="icon-btn np-fullscreen__play" id="npFullPlay" title="Play / Pause" aria-label="Play or pause">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="icon-btn" id="npFullNext" title="Next" aria-label="Next track">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l10 8-10 8V4z"/><path d="M19 5v14"/></svg>
+      </button>
+      <button class="icon-btn" id="npFullRepeat" title="Repeat" aria-label="Repeat">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      </button>
+      <button class="icon-btn" id="npFullLyricsBtn" title="Lyrics" aria-label="Show lyrics">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Track details modal -->
+  <div class="modal-overlay" id="detailsOverlay" hidden>
+    <div class="track-details" id="trackDetails" role="dialog" aria-modal="true" aria-labelledby="tdTitle">
+      <button class="track-details__close" id="tdClose" title="Close" aria-label="Close details">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="track-details__head">
+        <img class="track-details__art" id="tdArt" alt="" />
+        <div class="track-details__info">
+          <h3 id="tdTitle">Track</h3>
+          <p id="tdArtist">Artist</p>
+          <p id="tdAlbum">Album</p>
+          <div class="track-details__chips" id="tdChips"></div>
+        </div>
+      </div>
+      <div class="track-details__actions">
+        <button class="btn btn--primary" id="tdPlay">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>
+          Play
+        </button>
+        <button class="btn btn--ghost" id="tdAdd">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add to playlist
+        </button>
+        <button class="btn btn--ghost" id="tdDownload">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Download
+        </button>
+      </div>
+      <div class="track-details__license" id="tdLicense" hidden></div>
+      <div class="track-details__lyrics" id="tdLyrics" hidden></div>
+    </div>
+  </div>
+
+  <!-- Add-to-playlist menu -->
+  <div class="add-menu" id="addMenu" hidden></div>
+
+  <!-- New playlist modal -->
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal">
+      <h3 id="modalTitle">New playlist</h3>
+      <input type="text" id="modalInput" placeholder="Playlist name…" maxlength="120" autocomplete="off" />
+      <div class="modal__actions">
+        <button class="btn btn--ghost btn--sm" id="modalCancel">Cancel</button>
+        <button class="btn btn--primary btn--sm" id="modalConfirm">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/playlists.js"></script>
+  <script src="../js/player.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>
