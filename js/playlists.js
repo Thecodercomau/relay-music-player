@@ -1,17 +1,15 @@
 /**
- * Relay Music Player — playlists API wrapper.
- * Talks to php/playlists.php (login-protected, MySQL-backed).
+ * Relay Music Player — playlists API wrapper (Supabase edition).
+ * Talks to the `playlists` Edge Function (login-protected, Postgres-backed).
  */
 const Playlists = {
   base() {
-    return location.pathname.includes("/pages/") ? "../php" : "php";
+    return functionsBase();
   },
 
   async request(path, options = {}) {
-    const res = await fetch(`${this.base()}/playlists.php${path}`, {
-      credentials: "same-origin",
-      ...options,
-    });
+    const headers = { ...(await Api.authHeaders()), ...(options.headers || {}) };
+    const res = await fetch(`${this.base()}/playlists${path}`, { ...options, headers });
     let data;
     try {
       data = await res.json();
@@ -34,8 +32,7 @@ const Playlists = {
   create(name) {
     return this.request("?action=create", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ name }),
+      body: JSON.stringify({ name }),
     });
   },
 
@@ -46,24 +43,21 @@ const Playlists = {
   addTrack(payload) {
     return this.request("?action=addTrack", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(payload),
+      body: JSON.stringify(payload),
     });
   },
 
-  removeTrack(playlistId, deezerId) {
+  removeTrack(playlistId, trackId) {
     return this.request("?action=removeTrack", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ playlist_id: playlistId, deezer_id: deezerId }),
+      body: JSON.stringify({ playlist_id: playlistId, deezer_id: trackId }),
     });
   },
 
   delete(id) {
     return this.request("?action=delete", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ id }),
+      body: JSON.stringify({ id }),
     });
   },
 };

@@ -861,12 +861,13 @@
       try {
         showToast(`Downloading “${track.title}”…`);
         const preview = track.downloadUrl || track.preview || "";
-        // Local uploads (paths starting with "/") are same-origin — fetch
-        // directly. External URLs go through the PHP proxy so downloads
-        // work even if the remote host doesn't send CORS headers.
-        const proxyUrl = preview.startsWith("/")
-          ? null
-          : `${Api.base()}/music.php?action=stream&url=${encodeURIComponent(preview)}`;
+        // Local audio (relative paths or our storage bucket, which sends
+        // CORS headers) is fetched directly. External URLs go through the
+        // Edge Function stream proxy so downloads work even if the remote
+        // host doesn't send CORS headers.
+        const isLocal =
+          preview.startsWith("/") || preview.includes("/storage/v1/object/public/");
+        const proxyUrl = isLocal ? null : Api.streamUrl(preview);
         await player.download(track, proxyUrl);
         showToast("Download started ✓");
       } catch (err) {
@@ -1347,7 +1348,7 @@
       adminUserList.innerHTML = "";
 
       users.forEach((u) => {
-        const me = u.id === Number(user.id);
+        const me = u.id === String(user.id);
         const row = document.createElement("div");
         row.className = "user-row";
         row.innerHTML = `
@@ -1485,32 +1486,32 @@
         return;
       }
 
-      const body = new FormData();
-      body.append("action", "add");
-      body.append("title", title);
-      body.append("artist", artist);
-      body.append("album", album);
-      body.append("cover", cover);
-      if (file) body.append("audio", file);
-      else body.append("audio_url", audioUrl);
-
       setLoading(admSubmit, true);
       try {
-        const res = await fetch(`${Api.base()}/songs.php`, {
-          method: "POST",
-          credentials: "same-origin",
-          body,
-        });
-        let data = null;
-        try {
-          data = await res.json();
-        } catch {
-          // Not JSON — surface the raw reason instead of a cryptic parse error
-          throw new Error(
-            "The server returned an unexpected response. Check that PHP is running and restart it if a warning appears in its console."
-          );
+        // File uploads go straight to the uploads storage bucket; the URL
+        // is then passed to the songs function with the rest of the metadata.
+        let resolvedUrl = audioUrl;
+        if (file) {
+          const safeName = file.name.replace(/[^A-Za-z0-9._-]+/g, "-");
+          const path = `${user.id}/${Date.now()}-${safeName}`;
+          const { error: upErr } = await supabaseClient().storage
+            .from("uploads")
+            .upload(path, file, { cacheControl: "3600", upsert: false });
+          if (upErr) {
+            throw new Error(upErr.message || "Could not upload the audio file.");
+          }
+          resolvedUrl = supabaseClient().storage
+            .from("uploads")
+            .getPublicUrl(path).data.publicUrl;
         }
-        if (!res.ok) throw new Error(data.error || "Could not add song.");
+        const data = await Api.addSong({
+          title,
+          artist,
+          album,
+          cover,
+          duration: 0,
+          audio_url: resolvedUrl,
+        });
         showToast(`“${data.song.title}” added ✓`);
         document.getElementById("adminForm").reset();
         await loadAdmin();
@@ -1529,14 +1530,7 @@
 
       modalConfirm.onclick = async () => {
         try {
-          const res = await fetch(`${Api.base()}/songs.php`, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({ action: "delete", id: song.id }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || "Could not delete song.");
+          await Api.deleteSong(song.id);
           hideModal();
           showToast(`Deleted “${song.title}”.`);
           await loadAdmin();

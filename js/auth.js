@@ -1,56 +1,91 @@
 /**
- * Relay Music Player — auth helpers.
- * Talks to the PHP backend (php/*.php) backed by MySQL.
+ * Relay Music Player — auth helpers (Supabase edition).
+ * Backed by Supabase Auth + the `users` Edge Function for the profile.
  */
 
-// Path to the php/ folder depends on which page we're on.
+// Kept for the navbar link logic in app.js (page-location based).
 const PHP_BASE = location.pathname.includes("/pages/") ? "../php" : "php";
 
 const Auth = {
-  /** Returns the logged-in user object, or null. */
+  /**
+   * Returns the logged-in user's profile ({ id, name, email, is_admin }),
+   * or null when there is no session.
+   */
   async checkSession() {
+    let session;
     try {
-      const res = await fetch(`${PHP_BASE}/session.php`, {
-        credentials: "same-origin",
-      });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return data.logged_in ? data.user : null;
+      const s = await supabaseClient().auth.getSession();
+      session = s.data.session;
     } catch {
+      return null;
+    }
+    if (!session) return null;
+    try {
+      const data = await Api.me();
+      return data && data.user ? data.user : null;
+    } catch {
+      // Session exists but profile fetch failed — treat as logged out.
       return null;
     }
   },
 
-  /** POST to signup.php with name/email/password. */
+  /** Sign up with Supabase Auth. Returns { success } or { success:false, error }. */
   async signup(name, email, password) {
-    const res = await fetch(`${PHP_BASE}/signup.php`, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ name, email, password }),
-    });
-    return res.json();
+    try {
+      const { data, error } = await supabaseClient().auth.signUp({
+        email,
+        password,
+        options: { data: { name } },
+      });
+      if (error) {
+        return { success: false, error: friendlyAuthError(error) };
+      }
+      // No session → email confirmation is enabled on this project.
+      if (!data.session) {
+        return {
+          success: false,
+          error: "Account created! Check your email to confirm, then log in.",
+        };
+      }
+      return { success: true };
+    } catch {
+      return { success: false, error: "Cannot reach Supabase. Check your connection." };
+    }
   },
 
-  /** POST to login.php with email/password. */
+  /** Log in with Supabase Auth. Returns { success } or { success:false, error }. */
   async login(email, password) {
-    const res = await fetch(`${PHP_BASE}/login.php`, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ email, password }),
-    });
-    return res.json();
+    try {
+      const { error } = await supabaseClient().auth.signInWithPassword({ email, password });
+      if (error) {
+        return { success: false, error: friendlyAuthError(error) };
+      }
+      return { success: true };
+    } catch {
+      return { success: false, error: "Cannot reach Supabase. Check your connection." };
+    }
   },
 
-  /** POST to logout.php. */
+  /** Log out. */
   async logout() {
-    await fetch(`${PHP_BASE}/logout.php`, {
-      method: "POST",
-      credentials: "same-origin",
-    });
+    try {
+      await supabaseClient().auth.signOut();
+    } catch {
+      // ignore — the UI redirects regardless
+    }
   },
 };
+
+/** Turn supabase-js auth errors into friendly copy. */
+function friendlyAuthError(error) {
+  const msg = (error && error.message) || "";
+  if (/Invalid login credentials/i.test(msg)) return "Incorrect email or password.";
+  if (/User already registered/i.test(msg)) return "An account with that email already exists.";
+  if (/Email not confirmed/i.test(msg)) return "Please confirm your email before logging in.";
+  if (/Password should be at least/i.test(msg)) return "Password must be at least 6 characters.";
+  if (/rate limit/i.test(msg)) return "Too many attempts — please wait a moment and try again.";
+  return msg || "Something went wrong. Please try again.";
+}
 
 /** Escape user-provided strings before injecting into HTML. */
 function escapeHtml(str) {

@@ -1,6 +1,11 @@
 # 🎧 Relay Music Player
 
-A free, ad-free music streaming client built with **HTML, CSS & JavaScript**, backed by a **PHP + MySQL** authentication system, and powered by the **Deezer API** for music search & playback.
+A free, ad-free music streaming client built with **HTML, CSS & JavaScript**, backed by a **PHP + MySQL** authentication system, and powered by the **Jamendo API** for music search & playback.
+
+> 🔄 **Supabase edition:** this `main` branch runs on PHP + MySQL. A
+> no-backend-server port — Supabase Auth + Postgres + Edge Functions — lives
+> on the [`supabase`](https://github.com/Thecodercomau/relay-music-player/tree/supabase)
+> branch. See [SUPABASE.md](SUPABASE.md) for the full guide.
 
 ## ✨ Features
 
