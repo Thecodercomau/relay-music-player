@@ -19,14 +19,27 @@ const Auth = {
     } catch {
       return null;
     }
+    // No session → genuinely logged out.
     if (!session) return null;
+
     try {
       const data = await Api.me();
-      return data && data.user ? data.user : null;
+      if (data && data.user) return data.user;
     } catch {
-      // Session exists but profile fetch failed — treat as logged out.
-      return null;
+      // Session exists but the profile fetch failed (cold start, network
+      // blip). Never bounce a logged-in user back to login over that —
+      // fall back to the session's own identity instead.
     }
+
+    // Fallback profile derived from the session. is_admin starts false;
+    // the next successful check re-fetches the real profile.
+    const meta = (session.user && session.user.user_metadata) || {};
+    return {
+      id: session.user.id,
+      email: session.user.email || "",
+      name: meta.name || meta.full_name || session.user.email || "Player",
+      is_admin: false,
+    };
   },
 
   /** Sign up with Supabase Auth. Returns { success } or { success:false, error }. */
