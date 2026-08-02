@@ -19,6 +19,9 @@ com.relay.music.server.plist
 *.out
 *.pid
 
+# ---- Supabase CLI local state ----
+supabase/.temp/
+
 # ---- Editors / OS ----
 .vscode/
 .idea/
