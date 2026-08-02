@@ -1,0 +1,61 @@
+name: Deploy
+
+# Deploys the Supabase edition:
+#   1. Edge Functions  → Supabase (music, songs, users, playlists)
+#   2. Frontend        → GitHub Pages (the static HTML/CSS/JS)
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_ACCESS_TOKEN  → Supabase Dashboard → Account → Access tokens
+#   SUPABASE_PROJECT_ID    → the project ref (the abc… in your project URL)
+#
+# Function secrets (SUPABASE_SERVICE_ROLE_KEY, JAMENDO_CLIENT_ID) are stored
+# once in the Supabase dashboard — see DEPLOY-RUNBOOK.md, step 4.
+
+on:
+  push:
+    branches: [supabase]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  functions:
+    name: Deploy Edge Functions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy functions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase functions deploy \
+            music songs users playlists \
+            --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+
+  pages:
+    name: Publish frontend to GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .          # the repo root IS the static site (index.html, pages/, css/, js/)
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
