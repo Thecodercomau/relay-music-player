@@ -13,7 +13,7 @@ name: Deploy
 
 on:
   push:
-    branches: [supabase]
+    branches: [main, supabase]
   workflow_dispatch:
 
 permissions:

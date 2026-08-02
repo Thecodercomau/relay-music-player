@@ -51,12 +51,12 @@ Functions → Secrets**), or with the CLI after linking:
 
 **Option A — GitHub Actions (recommended, automatic):**
 
-1. Commit & push this repo's `supabase` branch (the workflow file is already there).
+1. Commit & push to `main` (the workflow file is already there).
 2. Add two repo secrets (Settings → **Secrets and variables → Actions**):
    - `SUPABASE_ACCESS_TOKEN` — Supabase Dashboard → **Account → Access
      tokens** → *Generate new token*
    - `SUPABASE_PROJECT_ID` — the `abc…` part of your Project URL
-3. Any future push to `supabase` re-deploys the functions automatically.
+3. Any future push to `main` re-deploys the functions automatically.
 
 **Option B — CLI (manual):**
 
@@ -91,7 +91,7 @@ Commit and push — GitHub Pages publishes it (step 7).
 1. Repo → **Settings → Pages**.
 2. **Source: GitHub Actions** (not "Deploy from a branch" — our workflow
    handles it). Save — nothing else to click.
-3. First deploy happens on the next push to `supabase` (or use **Actions →
+3. First deploy happens on the next push to `main` (or use **Actions →
    Deploy → Run workflow** to trigger manually).
 4. Your site URL: `https://<username>.github.io/relay-music-player/`
 

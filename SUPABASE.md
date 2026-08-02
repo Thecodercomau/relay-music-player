@@ -1,6 +1,7 @@
 # 🚀 Relay Music Player — Supabase edition
 
-This branch (`supabase`) replaces the PHP + MySQL backend with:
+This edition (now on `main`; the PHP + MySQL version lives on the
+`php-mysql` branch) replaces the old backend with:
 
 | Old (PHP + MySQL) | New (Supabase) |
 |---|---|

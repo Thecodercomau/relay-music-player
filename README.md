@@ -2,10 +2,12 @@
 
 A free, ad-free music streaming client built with **HTML, CSS & JavaScript**, backed by a **PHP + MySQL** authentication system, and powered by the **Jamendo API** for music search & playback.
 
-> 🔄 **Supabase edition:** this `main` branch runs on PHP + MySQL. A
-> no-backend-server port — Supabase Auth + Postgres + Edge Functions — lives
-> on the [`supabase`](https://github.com/Thecodercomau/relay-music-player/tree/supabase)
-> branch. See [SUPABASE.md](SUPABASE.md) for the full guide.
+> 🚀 **Supabase edition (current):** this `main` branch now runs on Supabase
+> (Auth + Postgres + Edge Functions) — see [SUPABASE.md](SUPABASE.md) and
+> [DEPLOY-RUNBOOK.md](DEPLOY-RUNBOOK.md). The original PHP + MySQL edition is
+> preserved on the
+> [`php-mysql`](https://github.com/Thecodercomau/relay-music-player/tree/php-mysql)
+> branch.
 
 ## ✨ Features
 
