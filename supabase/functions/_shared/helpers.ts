@@ -174,6 +174,7 @@ async function fetchJsonOnce(url: string): Promise<Record<string, unknown> | nul
   try {
     const res = await fetch(url, {
       headers: { "User-Agent": "Relay-Music-Player/2.0 (+supabase)" },
+      signal: AbortSignal.timeout(10000), // mirrors PHP's 10s curl timeout
     });
     if (!res.ok) return null;
     const text = await res.text();

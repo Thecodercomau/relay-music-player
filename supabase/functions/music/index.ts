@@ -265,12 +265,26 @@ async function fetchJamendoTracks(url: string): Promise<Track[]> {
 
 function collectTagGroups(groups: unknown): string[] {
   const tags: string[] = [];
-  if (!Array.isArray(groups)) return tags;
-  for (const group of groups) {
-    if (Array.isArray(group)) {
-      for (const tag of group) tags.push(String(tag));
-    } else {
-      tags.push(String(group));
+  const push = (v: unknown) => {
+    if (v !== null && v !== undefined) tags.push(String(v));
+  };
+  if (Array.isArray(groups)) {
+    for (const group of groups) {
+      if (Array.isArray(group)) {
+        for (const tag of group) push(tag);
+      } else {
+        push(group);
+      }
+    }
+  } else if (typeof groups === "object" && groups !== null) {
+    // Jamendo returns tags as a dict of groups, e.g.
+    // { genres: [...], instruments: [...], vartags: [...] }
+    for (const value of Object.values(groups as Record<string, unknown>)) {
+      if (Array.isArray(value)) {
+        for (const tag of value) push(tag);
+      } else {
+        push(value);
+      }
     }
   }
   return [...new Set(tags.map((t) => t.trim()).filter(Boolean))];
@@ -294,7 +308,7 @@ async function jamendoTrackDetails(id: number): Promise<Track | null> {
   const mi = await fetchJson(miUrl, true);
   const miInfo = ((mi?.results as Track[] | undefined)?.[0]?.musicinfo) as Record<string, unknown> | undefined;
   if (miInfo) {
-    if ((details.tags as string[]).length === 0 && Array.isArray(miInfo.tags)) {
+    if ((details.tags as string[]).length === 0 && miInfo.tags !== undefined) {
       details.tags = collectTagGroups(miInfo.tags).slice(0, 8);
     }
     if (details.lang === "" && miInfo.lang) details.lang = String(miInfo.lang);
@@ -326,9 +340,9 @@ function mapJamendoDetails(t: Track): Track {
   const license = String(t.license_ccurl ?? "");
 
   let tags: string[] = [];
-  if (Array.isArray(t.tags)) tags = collectTagGroups(t.tags);
+  if (t.tags !== undefined) tags = collectTagGroups(t.tags);
   const miTags = (t.musicinfo as Record<string, unknown> | undefined)?.tags;
-  if (Array.isArray(miTags)) tags = collectTagGroups(miTags);
+  if (miTags !== undefined) tags = collectTagGroups(miTags);
 
   let lyrics = "";
   if (typeof t.lyrics === "string") lyrics = t.lyrics;

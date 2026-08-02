@@ -1,0 +1,20 @@
+# Relay Music Player — Supabase CLI config.
+#
+# Platform-level JWT verification is disabled because the `music` function
+# has public actions (search / trending / details) that must work without a
+# token — the same as the old PHP version. Every protected action re-checks
+# auth inside the function (requireUser / requireAdmin), so this is safe.
+
+project_id = "relay-music-player"
+
+[functions.music]
+verify_jwt = false
+
+[functions.songs]
+verify_jwt = false
+
+[functions.users]
+verify_jwt = false
+
+[functions.playlists]
+verify_jwt = false
