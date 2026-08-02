@@ -12,12 +12,17 @@ const Auth = {
    * or null when there is no session.
    */
   async checkSession() {
-    let session;
-    try {
-      const s = await supabaseClient().auth.getSession();
-      session = s.data.session;
-    } catch {
-      return null;
+    let session = null;
+    // One retry in case the session lookup hiccups (e.g. supabase-js
+    // throwing once while initializing) — never bounce a logged-in user
+    // to login on a transient failure.
+    for (let attempt = 0; attempt < 2 && !session; attempt++) {
+      try {
+        const s = await supabaseClient().auth.getSession();
+        session = s.data.session;
+      } catch {
+        // try once more below
+      }
     }
     // No session → genuinely logged out.
     if (!session) return null;
